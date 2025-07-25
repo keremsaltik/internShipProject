@@ -80,7 +80,7 @@
                         <outlet property="emailTextField" destination="dHa-HW-YsN" id="xEl-6z-bwN"/>
                         <outlet property="loginButton" destination="WQx-2w-LcK" id="so8-he-MFt"/>
                         <outlet property="passwordTextField" destination="hBO-rx-L13" id="2kY-X8-7hZ"/>
-                        <outlet property="rememberMe" destination="sFt-22-71E" id="dmK-Di-HuI"/>
+                        <outlet property="rememberMeSwitch" destination="sFt-22-71E" id="3ih-Vi-xpW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

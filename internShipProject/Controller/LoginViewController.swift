@@ -13,16 +13,37 @@ class LoginViewController: UIViewController {
     //MARK: - Variables
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
-    @IBOutlet weak var rememberMe: UISwitch!
+    @IBOutlet weak var rememberMeSwitch: UISwitch!
     @IBOutlet weak var loginButton: UIButton!
+    
+    let userOptions = UserDefaults.standard
+    
     
     
     
     //MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        Task{
+            guard let mail = userOptions.string(forKey: "mail"), let password = userOptions.string(forKey: "password") else {
+                return
+            }
+            
+            let rememberedData = LoginRequest(mail: mail, password: password)
+            do{
+                let rememberedResponse = try await APIService.shared.login(requestData: rememberedData)
+                if rememberedResponse.success{
+                    switchToMainApp()
+                }
+                else{
+                    print("Bağlantı hatası")
+                }
+            }catch{
+                
+            }
+        }
     }
-    
     //MARK: - Actions
     
     @IBAction func loginButtonTapped(_ sender: UIButton) {
@@ -54,6 +75,10 @@ class LoginViewController: UIViewController {
                 if response.success {
                     // GİRİŞ BAŞARILI
                     print("Başarıyla giriş yapıldı: \(response.message)")
+                    if rememberMeSwitch.isOn {
+                        userOptions.set(mail, forKey: "mail")
+                        userOptions.set(passwordHashed, forKey: "password")
+                    }
                     switchToMainApp()
                 } else {
                     // GİRİŞ BAŞARISIZ
@@ -67,6 +92,7 @@ class LoginViewController: UIViewController {
                 AlertHelper.showAlert(viewController: self, title: "Ağ hatası", message: "Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.")
             }
         }
+        
     }
     
     
@@ -93,5 +119,5 @@ class LoginViewController: UIViewController {
         }
     }
     
-    
+ 
 }
