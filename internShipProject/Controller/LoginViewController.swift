@@ -25,25 +25,31 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        Task{
-            guard let mail = userOptions.string(forKey: "mail"), let password = userOptions.string(forKey: "password") else {
-                return
-            }
-            
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        guard let mail = userOptions.string(forKey: "mail"),
+              let password = userOptions.string(forKey: "password") else {
+            return
+        }
+
+        Task {
             let rememberedData = LoginRequest(mail: mail, password: password)
-            do{
+            do {
                 let rememberedResponse = try await APIService.shared.login(requestData: rememberedData)
-                if rememberedResponse.success{
+                if rememberedResponse.success {
                     switchToMainApp()
-                }
-                else{
+                } else {
                     print("Bağlantı hatası")
                 }
-            }catch{
-                
+            } catch {
+                print("Otomatik giriş sırasında hata: \(error)")
             }
         }
     }
+
     //MARK: - Actions
     
     @IBAction func loginButtonTapped(_ sender: UIButton) {
@@ -100,8 +106,8 @@ class LoginViewController: UIViewController {
     // Ana uygulama arayüzüne geçişi yöneten fonksiyon
     func switchToMainApp() {
         DispatchQueue.main.async {
-            guard let mainNavigationController = self.storyboard?.instantiateViewController(withIdentifier: "MainNavigationController") else {
-                print("Hata: MainNavigationController storyboard'da bulunamadı.")
+            guard let mainNavigationController = self.storyboard?.instantiateViewController(withIdentifier: "toHomePageNavigationController") else {
+                print("Hata: toHomePageNavigationController storyboard'da bulunamadı.")
                 return
             }
             

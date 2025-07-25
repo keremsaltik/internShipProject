@@ -161,14 +161,23 @@
         <!--Ana Sayfa-->
         <scene sceneID="vXF-sg-o32">
             <objects>
-                <viewController id="82n-1I-2XU" sceneMemberID="viewController">
+                <viewController id="82n-1I-2XU" customClass="HomePageViewController" customModule="internShipProject" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="kHx-sk-lyh">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="Koy-zi-wnY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Ana Sayfa" id="kKr-Kg-NEH"/>
+                    <navigationItem key="navigationItem" title="Ana Sayfa" id="kKr-Kg-NEH">
+                        <barButtonItem key="rightBarButtonItem" title="Çıkış Yap" id="w0C-E5-M9D">
+                            <connections>
+                                <action selector="logOutButtonTapped:" destination="82n-1I-2XU" id="9st-8G-yyo"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="logOutButton" destination="w0C-E5-M9D" id="Vcs-J5-0HE"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GkI-BJ-ne4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -177,10 +186,10 @@
         <!--Navigation Controller-->
         <scene sceneID="O3T-gW-3ll">
             <objects>
-                <navigationController storyboardIdentifier="MainNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="Fgf-gz-T3g" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="toHomePageNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="Fgf-gz-T3g" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="lTD-pJ-aHi">
-                        <rect key="frame" x="0.0" y="62" width="402" height="104.33333333333334"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="lTD-pJ-aHi">
+                        <rect key="frame" x="0.0" y="62" width="402" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -195,7 +204,7 @@
         <!--Navigation Controller-->
         <scene sceneID="3bb-bs-jeP">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="hq7-Zs-3jo" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="toLoginPageNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="hq7-Zs-3jo" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="MLO-uj-OhC">
                         <rect key="frame" x="0.0" y="62" width="402" height="104.33333333333334"/>
