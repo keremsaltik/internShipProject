@@ -35,7 +35,8 @@ class HomePageViewController: UIViewController {
     @IBAction func logOutButtonTapped(_ sender: UIButton){
         userOptions.removeObject(forKey: "mail")
         userOptions.removeObject(forKey: "password")
-        switchToMainApp()
+     
+        verifyandSwitch()
     }
 
     //MARK: - Functions
@@ -57,6 +58,18 @@ class HomePageViewController: UIViewController {
                                   animations: nil,
                                   completion: nil)
             }
+        }
+    }
+    
+    func verifyandSwitch(){
+        if userOptions.string(forKey: "mail") == nil && userOptions.string(forKey: "password") == nil{
+            print("Veriler silindi ana sayfaya geçiş yapılıyor...")
+            switchToMainApp()
+        }else{
+            print("Veriler mevcut, siliniyor...")
+            userOptions.removeObject(forKey: "mail")
+            userOptions.removeObject(forKey: "password")
+            verifyandSwitch()
         }
     }
 }
