@@ -107,6 +107,7 @@ class ProfileViewController: UIViewController {
                     self?.mailLabel.text = profileResponse.mail
                 
                 case .failure(let error):
+                    AlertHelper.showAlert(viewController: self!, title: "Hata", message: "Profil bilgileri alınamadı.")
                     // Başarısız: Hata mesajı göster
                     print("Profil bilgileri alınamadı: \(error.localizedDescription)")
                     // --- BU SATIRLARI EKLE ---
@@ -115,8 +116,7 @@ class ProfileViewController: UIViewController {
                         print("Hatanın açıklaması: \(error.localizedDescription)")
                         }
                         print("-----------------------")
-                        // -------------------------
-                    AlertHelper.showAlert(viewController: self!, title: "Hata", message: "Profil bilgileri alınamadı.")
+                    
                 }
             
             }
