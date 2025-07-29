@@ -16,7 +16,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        
+        let window = UIWindow(windowScene: windowScene)
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        // 2. Keychain'den token'ı kontrol et
+        let token = KeyChainManager.shared.getToken()
+        print("Uygulama açılırken okunan token: \(token ?? "Token bulunamadı (nil)")")
+
+        // 3. Token'ın varlığına göre yönlendirme yap
+        if(token != nil){
+            // TOKEN VAR: Kullanıcı giriş yapmış. Ana ekrana yönlendir.
+            print("Token var. Anasayfaya yönlendiriliyor...")
+            let mainViewController = storyboard.instantiateViewController(withIdentifier: "toHomePageTabBarController")
+            window.rootViewController = mainViewController
+        }else{
+            // TOKEN YOK: Kullanıcı giriş yapmamış. Giriş ekranına yönlendir.
+            print("Token bulunamadı. Giriş ekranına yönlendiriliyor...")
+            let loginViewController = storyboard.instantiateViewController(withIdentifier: "toLoginPageNavigationController")
+            window.rootViewController = loginViewController
+        }
+        
+        // 4. Pencereyi göster
+        self.window = window
+        window.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

@@ -15,6 +15,7 @@ struct LoginRequest:Codable{
 struct LoginResponse: Codable{
     let success: Bool
     let message: String
+    let token: String
 }
 
 struct RegisterRequest: Codable{

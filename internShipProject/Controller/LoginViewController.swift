@@ -13,10 +13,8 @@ class LoginViewController: UIViewController {
     //MARK: - Variables
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
-    @IBOutlet weak var rememberMeSwitch: UISwitch!
     @IBOutlet weak var loginButton: UIButton!
     
-    let userOptions = UserDefaults.standard
     
     
     
@@ -29,25 +27,6 @@ class LoginViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        guard let mail = userOptions.string(forKey: "mail"),
-              let password = userOptions.string(forKey: "password") else {
-            return
-        }
-
-        Task {
-            let rememberedData = LoginRequest(mail: mail, password: password)
-            do {
-                let rememberedResponse = try await APIService.shared.login(requestData: rememberedData)
-                if rememberedResponse.success {
-                    switchToMainApp()
-                } else {
-                    print("Bağlantı hatası")
-                }
-            } catch {
-                print("Otomatik giriş sırasında hata: \(error)")
-            }
-        }
     }
 
     //MARK: - Actions
@@ -81,10 +60,13 @@ class LoginViewController: UIViewController {
                 if response.success {
                     // GİRİŞ BAŞARILI
                     print("Başarıyla giriş yapıldı: \(response.message)")
-                    if rememberMeSwitch.isOn {
-                        userOptions.set(mail, forKey: "mail")
-                        userOptions.set(passwordHashed, forKey: "password")
-                    }
+                    // Token'ı HER ZAMAN kaydet. Bu, kullanıcının giriş yapmış olduğu anlamına gelir.
+                    KeyChainManager.shared.saveToken(token: response.token)
+                    
+                    // 3. Kaydettikten hemen sonra geri okumayı dene. nil mi dönüyor?
+                    let savedToken = KeyChainManager.shared.getToken()
+                    print("Kaydettikten hemen sonra okunan token: \(savedToken ?? "HATA: Token kaydedilemedi veya okunamadı!")")
+                    
                     switchToMainApp()
                 } else {
                     // GİRİŞ BAŞARISIZ
@@ -106,8 +88,8 @@ class LoginViewController: UIViewController {
     // Ana uygulama arayüzüne geçişi yöneten fonksiyon
     func switchToMainApp() {
         DispatchQueue.main.async {
-            guard let mainNavigationController = self.storyboard?.instantiateViewController(withIdentifier: "toHomePageNavigationController") else {
-                print("Hata: toHomePageNavigationController storyboard'da bulunamadı.")
+            guard let mainNavigationController = self.storyboard?.instantiateViewController(withIdentifier: "toHomePageTabBarController") else {
+                print("Hata: toHomePageTabBarController storyboard'da bulunamadı.")
                 return
             }
             

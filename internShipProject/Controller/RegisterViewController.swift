@@ -55,9 +55,12 @@ class RegisterViewController: UIViewController {
                 return
             }
         
+        // Burada digest, Swift Crypto framework’ünden SHA256Digest tipinde bir nesne olur.
+        // Ama SHA256Digest bir Data veya String değildir. Bu yüzden onu doğrudan MongoDB'ye (özellikle BSON/JSON üzerinden string bekleyen alanlara) kaydetmek istersen hata alırsın.
         let passwordData = Data(password.utf8)
         let digest = SHA256.hash(data: passwordData)
 
+        // Bu satır, digest içindeki her baytı (byte) hex (onaltılık) formatta iki karakterlik bir string’e çevirir. Örneğin 0x0f byte'ı "0f" olur.
         let passwordHashed = digest.map { String(format: "%02x", $0) }.joined()
 
         let registerData = RegisterRequest(name: name, mail: mail, password: passwordHashed)

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4AAC017A2E37958200A43758 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 4AAC01792E37958200A43758 /* KeychainAccess */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4AAC00412E30D57A00A43758 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AAC017A2E37958200A43758 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = internShipProject;
 			packageProductDependencies = (
+				4AAC01792E37958200A43758 /* KeychainAccess */,
 			);
 			productName = internShipProject;
 			productReference = 4AAC002A2E30D57900A43758 /* internShipProject.app */;
@@ -208,6 +214,9 @@
 			);
 			mainGroup = 4AAC00212E30D57900A43758;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4AAC01782E37944700A43758 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4AAC002B2E30D57900A43758 /* Products */;
 			projectDirPath = "";
@@ -563,6 +572,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4AAC01782E37944700A43758 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4AAC01792E37958200A43758 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AAC01782E37944700A43758 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4AAC00222E30D57900A43758 /* Project object */;
 }
