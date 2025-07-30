@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import JWTDecode
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -19,29 +20,45 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        
-        // 2. Keychain'den token'ı kontrol et
-        let token = KeyChainManager.shared.getToken()
-        print("Uygulama açılırken okunan token: \(token ?? "Token bulunamadı (nil)")")
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                
+                // Keychain'den token'ı kontrol et
+                if let token = KeyChainManager.shared.getToken() {
+                    // TOKEN VAR: Şimdi geçerliliğini kontrol et.
+                    do {
+                        let jwt = try decode(jwt: token)
+                        
+                        // Token'ın süresi dolmuş mu?
+                        if jwt.expired {
+                            // SÜRESİ DOLMUŞ: Kullanıcıyı giriş ekranına yönlendir ve eski token'ı sil.
+                            print("Token bulundu ama süresi dolmuş. Giriş ekranına yönlendiriliyor...")
+                            KeyChainManager.shared.deleteToken() // Önemli: Süresi dolmuş token'ı temizle!
+                            
+                            let loginViewController = storyboard.instantiateViewController(withIdentifier: "toLoginPageNavigationController")
+                            window.rootViewController = loginViewController
+                        } else {
+                            // GEÇERLİ TOKEN: Kullanıcıyı ana ekrana yönlendir.
+                            print("Token geçerli. Anasayfaya yönlendiriliyor...")
+                            let mainViewController = storyboard.instantiateViewController(withIdentifier: "toHomePageTabBarController")
+                            window.rootViewController = mainViewController
+                        }
+                    } catch {
+                        // DECODE HATASI: Token bozuk veya geçersiz. Giriş ekranına yönlendir.
+                        print("Token decode edilemedi (bozuk token). Giriş ekranına yönlendiriliyor...")
+                        KeyChainManager.shared.deleteToken() // Bozuk token'ı da temizle.
 
-        // 3. Token'ın varlığına göre yönlendirme yap
-        if(token != nil){
-            // TOKEN VAR: Kullanıcı giriş yapmış. Ana ekrana yönlendir.
-            print("Token var. Anasayfaya yönlendiriliyor...")
-            let mainViewController = storyboard.instantiateViewController(withIdentifier: "toHomePageTabBarController")
-            window.rootViewController = mainViewController
-        }else{
-            // TOKEN YOK: Kullanıcı giriş yapmamış. Giriş ekranına yönlendir.
-            print("Token bulunamadı. Giriş ekranına yönlendiriliyor...")
-            let loginViewController = storyboard.instantiateViewController(withIdentifier: "toLoginPageNavigationController")
-            window.rootViewController = loginViewController
-        }
-        
-        // 4. Pencereyi göster
-        self.window = window
-        window.makeKeyAndVisible()
-    }
+                        let loginViewController = storyboard.instantiateViewController(withIdentifier: "toLoginPageNavigationController")
+                        window.rootViewController = loginViewController
+                    }
+                } else {
+                    // TOKEN YOK: Kullanıcı giriş yapmamış. Giriş ekranına yönlendir.
+                    print("Token bulunamadı. Giriş ekranına yönlendiriliyor...")
+                    let loginViewController = storyboard.instantiateViewController(withIdentifier: "toLoginPageNavigationController")
+                    window.rootViewController = loginViewController
+                }
+                
+                self.window = window
+                window.makeKeyAndVisible()    }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

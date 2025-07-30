@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4AAC017A2E37958200A43758 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 4AAC01792E37958200A43758 /* KeychainAccess */; };
+		4AAC02732E39F1BF00A43758 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = 4AAC02722E39F1BF00A43758 /* JWTDecode */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AAC02732E39F1BF00A43758 /* JWTDecode in Frameworks */,
 				4AAC017A2E37958200A43758 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -131,6 +133,7 @@
 			name = internShipProject;
 			packageProductDependencies = (
 				4AAC01792E37958200A43758 /* KeychainAccess */,
+				4AAC02722E39F1BF00A43758 /* JWTDecode */,
 			);
 			productName = internShipProject;
 			productReference = 4AAC002A2E30D57900A43758 /* internShipProject.app */;
@@ -216,6 +219,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4AAC01782E37944700A43758 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				4AAC02412E39F0F400A43758 /* XCRemoteSwiftPackageReference "JWTDecode" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4AAC002B2E30D57900A43758 /* Products */;
@@ -582,6 +586,14 @@
 				kind = branch;
 			};
 		};
+		4AAC02412E39F0F400A43758 /* XCRemoteSwiftPackageReference "JWTDecode" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/JWTDecode.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -589,6 +601,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4AAC01782E37944700A43758 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		4AAC02722E39F1BF00A43758 /* JWTDecode */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4AAC02412E39F0F400A43758 /* XCRemoteSwiftPackageReference "JWTDecode" */;
+			productName = JWTDecode;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
