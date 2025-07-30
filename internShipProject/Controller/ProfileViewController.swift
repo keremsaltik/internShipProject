@@ -25,8 +25,7 @@ class ProfileViewController: UIViewController {
     
     //MARK: - Actions
     @IBAction func logOutButtonTapped(_ sender: UIButton){
-       
-     
+        // Kaydedilen JSON Web Token'i silmeyi sağlar.
         KeyChainManager.shared.deleteToken()
         
         switchToMainApp()
@@ -34,42 +33,7 @@ class ProfileViewController: UIViewController {
     
     //MARK: - Functions
     
-    func fetchProfile(completion: @escaping (Result<ProfileResponse, Error>) -> Void){
-        // Önce token'ı alalım.
-        guard let token = KeyChainManager.shared.getToken() else {
-            completion(.failure(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "Token not found. Please login."])))
-            return }
-        
-        guard let url = URL(string: "\(NetworkInfo.Hosts.localHost)/profile") else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        // 2. En önemli kısım: Authorization başlığını ekle
-        // Format: "Bearer <token>"
-        request.setValue("Bearer \(token) ", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) {data, response, error in
-            if let error = error{
-                completion(.failure(error))
-                return
-            }
-            
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
-                // Token geçersiz veya süresi dolmuş. Kullanıcıyı tekrar login ekranına yönlendir.
-                completion(.failure(NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "Unauthorized"])))
-                           return
-            }
-            
-            guard let data = data else { return }
-            
-            do {
-                let profile = try JSONDecoder().decode(ProfileResponse.self, from: data)
-                completion(.success(profile))
-            }catch{
-                completion(.failure(error))
-            }
-        }.resume()
-    }
+    
     
 
     
@@ -97,7 +61,7 @@ class ProfileViewController: UIViewController {
     
     func loadUserProfile(){
         // Yazılan profili alma fonksiyonu.
-        fetchProfile{
+        APIService.shared.fetchProfile{
             [weak self] result in
             DispatchQueue.main.async{
                 switch(result){

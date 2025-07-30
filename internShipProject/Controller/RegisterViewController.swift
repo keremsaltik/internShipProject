@@ -69,11 +69,15 @@ class RegisterViewController: UIViewController {
             do{
                 let response = try await APIService.shared.register(requestData: registerData)
                 
-                if response.success{
-                    print("Başarıyla kayıt olundu")
-                    showSuccessAlertandGoBack()
-                }else{
-                    print("Kayıt hatası: \(response.message)")
+                do{
+                    if response.success{
+                        print("Başarıyla kayıt olundu")
+                        showSuccessAlertandGoBack()
+                    }else{
+                        print("Kayıt hatası: \(response.message)")
+                        AlertHelper.showAlert(viewController: self, title: "Kayıt Başarısız", message:  response.message ?? "Bilinmeyen bir hata oluştu.")
+                    }
+                }catch{
                     AlertHelper.showAlert(viewController: self, title: "Ağ hatası", message: "Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyiniz.")
                 }
             }
