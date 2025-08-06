@@ -32,11 +32,6 @@ class ProfileViewController: UIViewController {
     }
     
     //MARK: - Functions
-    
-    
-    
-
-    
     func switchToMainApp() {
         DispatchQueue.main.async {
             guard let mainNavigationController = self.storyboard?.instantiateViewController(withIdentifier: "toLoginPageNavigationController") else {

@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+struct UserViewModel: Codable, Hashable{
+    let name: String
+    let mail: String
+}
