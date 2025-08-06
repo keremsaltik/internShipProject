@@ -344,7 +344,7 @@
                 <navigationController storyboardIdentifier="toLoginPageNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="hq7-Zs-3jo" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="MLO-uj-OhC">
-                        <rect key="frame" x="0.0" y="62" width="402" height="96"/>
+                        <rect key="frame" x="0.0" y="62" width="402" height="104.33333333333334"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -422,7 +422,7 @@
                     <tabBarItem key="tabBarItem" title="Projeler" image="folder.fill" catalog="system" id="1h2-Yt-eju"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="VHA-6g-iQf">
-                        <rect key="frame" x="0.0" y="62" width="402" height="96"/>
+                        <rect key="frame" x="0.0" y="62" width="402" height="104.33333333333334"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

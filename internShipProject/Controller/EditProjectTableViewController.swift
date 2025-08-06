@@ -64,12 +64,6 @@ class EditProjectTableViewController: UITableViewController {
      }*/
     
     //MARK: - Actions
-    
-    /*// "İptal" butonuna basıldığında
-     @IBAction func cancelButtonTapped(_ sender: UIButton!){
-     dismiss(animated: true)
-     }*/
-    
     // "Kaydet" butonuna basıldığında
     @IBAction func saveButtonTapped(_ sender: UIButton!){
         // 1. Güncellenecek projenin ID'sini ve temel verisini alalım.
@@ -98,16 +92,12 @@ class EditProjectTableViewController: UITableViewController {
         let status = statusSegmentedControl.titleForSegment(at: statusSegmentedControl.selectedSegmentIndex) ?? "Bilinmiyor"
                 let priority = prioritySegmentedControl.titleForSegment(at: prioritySegmentedControl.selectedSegmentIndex) ?? "Bilinmiyor"
         
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let startDateString = isoFormatter.string(from: startDate)
-        let endDateString = isoFormatter.string(from: endDate)
         
         // 3. Modelimizi, formdaki yeni verilerle güncelleyelim.
             projectDataToUpdate.title = title
             projectDataToUpdate.description = description
-            projectDataToUpdate.startDate = startDateString
-            projectDataToUpdate.endDate = endDateString
+            projectDataToUpdate.startDate = startDate
+            projectDataToUpdate.endDate = endDate
             projectDataToUpdate.status = status
             projectDataToUpdate.category = category
             projectDataToUpdate.priority = priority
@@ -244,15 +234,9 @@ class EditProjectTableViewController: UITableViewController {
                     prioritySegmentedControl.selectedSegmentIndex = priorityIndex
                 }
                 
-                // Date Picker'ları ayarla
-                let isoFormatter = ISO8601DateFormatter()
-                isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-                if let startDate = isoFormatter.date(from: project.startDate) {
-                    startDatePicker.date = startDate
-                }
-                if let endDate = isoFormatter.date(from: project.endDate) {
-                    endDatePicker.date = endDate
-                }
+                // Date Picker'ları dolduralım
+        startDatePicker.date = project.startDate
+        endDatePicker.date = project.endDate
                 
                 // Seçim değişkenlerini ve buton başlıklarını doldur
                 selectedManagerName = project.projectManager

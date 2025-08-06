@@ -92,11 +92,6 @@ class CreateProjectTableViewController: UITableViewController {
         // Segmented Control'deki başlıkları doğrudan alıyoruz.
         let status = statusSegmentedControl.titleForSegment(at: statusIndex) ?? "Bilinmiyor"
         
-        // 4. Tarihleri backend'in beklediği ISO8601 formatındaki String'e çevir
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let startDateString = isoFormatter.string(from: startDate)
-        let endDateString = isoFormatter.string(from: endDate)
         
         
         // Öncelik değeri
@@ -108,8 +103,8 @@ class CreateProjectTableViewController: UITableViewController {
         let newProjectData = CreateProjectRequest(
             title: title,
             description: description,
-            startDate: startDateString,
-            endDate: endDateString,
+            startDate: startDate,
+            endDate: endDate,
             status: status,
             category: category,
             priority: priority,

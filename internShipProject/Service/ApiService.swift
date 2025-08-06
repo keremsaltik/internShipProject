@@ -117,10 +117,7 @@ class APIService {
     
     func fetchProjects() async throws -> [ProjectModel] {
         
-        // --- NİHAİ KANIT TESTİ: URL'i DOĞRUDAN BURAYA YAZALIM ---
-        // NetworkInfo değişkenini tamamen görmezden geliyoruz.
-        // Mobil tarayıcıda çalıştığını KANITLADIĞIN IP adresini buraya yaz.
-        let urlString = "\(NetworkInfo.Hosts.localHost)/project" // <-- BURAYA KENDİ BİLGİSAYARININ IP ADRESİNİ YAZ
+        let urlString = "\(NetworkInfo.Hosts.localHost)/project"
         // ---------------------------------------------------------
         
         print("NİHAİ TEST: İstek atılacak URL: \(urlString)")
@@ -151,7 +148,15 @@ class APIService {
             }
             
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            
+            //Tarih verilerini belirli bir formatta ekranda gösterebilmek için DateFormatter() kullanıyoruz.
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            
+            decoder.dateDecodingStrategy = .formatted(dateFormatter)
+            
             let projects = try decoder.decode([ProjectModel].self, from: data)
             
             print("BAŞARILI! Projeler başarıyla çözümlendi. Bulunan proje sayısı: \(projects.count)")
@@ -183,7 +188,11 @@ class APIService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         // 4. Proje verisini JSON'a çevirip isteğin gövdesine ekle
-        request.httpBody = try JSONEncoder().encode(projectData)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        request.httpBody = try encoder.encode(projectData)
+        
+        //request.httpBody = try JSONEncoder().encode(projectData)
         
         // 5. API isteğini yap ve yanıtı bekle
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -301,7 +310,9 @@ class APIService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         // Tarihler zaten String olduğu için, standart Encoder yeterli.
-        request.httpBody = try JSONEncoder().encode(projectData)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        request.httpBody = try encoder.encode(projectData)
         
         let (data, response) = try await URLSession.shared.data(for: request)
         

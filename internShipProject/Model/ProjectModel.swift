@@ -12,8 +12,8 @@ struct ProjectModel: Codable, Identifiable{
     let mail: String
     var title: String
     var description:String
-    var startDate: String
-    var endDate: String
+    var startDate: Date
+    var endDate: Date
     var status: String
     var category: String?
     var priority: String?

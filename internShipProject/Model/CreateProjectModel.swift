@@ -10,8 +10,8 @@ import Foundation
 struct CreateProjectRequest: Codable{
     let title: String
     let description: String
-    let startDate: String
-    let endDate: String
+    let startDate: Date
+    let endDate: Date
     let status: String
     let category: String
     let priority: String

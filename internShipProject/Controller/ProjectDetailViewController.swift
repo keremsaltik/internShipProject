@@ -62,13 +62,20 @@ class ProjectDetailViewController: UIViewController, UITableViewDataSource, UITa
         // Ekranın başlığını proje adıyla güncelle
         self.title = project.title
         
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .long // Örn: "August 1, 2025"
+        dateFormatter.locale = Locale(identifier: "tr_TR") // Türkçe format için
+        
+        let startDate = dateFormatter.string(from: project.startDate)
+        let endDate = dateFormatter.string(from: project.endDate)
+        
         // Proje verilerini, 'detailItems' dizisine ekleyelim.
         // Her bir eleman, tabloda yeni bir satır olacak.
         // İkon isimleri, Apple'ın SF Symbols kütüphanesinden alınmıştır.
         detailItems.append(ProjectDetailModel(label: "Açıklama", value: project.description, iconName: "text.alignleft"))
         detailItems.append(ProjectDetailModel(label: "Durum", value: project.status, iconName: "hourglass"))
-        detailItems.append(ProjectDetailModel(label: "Başlangıç Tarihi", value: formatDate(project.startDate), iconName: "calendar.badge.plus"))
-        detailItems.append(ProjectDetailModel(label: "Bitiş Tarihi", value: formatDate(project.endDate), iconName: "calendar.badge.minus"))
+        detailItems.append(ProjectDetailModel(label: "Başlangıç Tarihi", value: startDate, iconName: "calendar.badge.plus"))
+        detailItems.append(ProjectDetailModel(label: "Bitiş Tarihi", value: endDate, iconName: "calendar.badge.minus"))
         detailItems.append(ProjectDetailModel(label: "İlgili E-posta", value: project.mail, iconName: "envelope.fill"))
         detailItems.append(ProjectDetailModel(label: "Proje Kategorisi", value: project.category ?? "", iconName: "tag.fill"))
         detailItems.append(ProjectDetailModel(label: "Proje Önem Derecesi", value: project.priority ?? "", iconName:"exclamationmark.circle.fill"))

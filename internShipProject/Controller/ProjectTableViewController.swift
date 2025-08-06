@@ -70,7 +70,7 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedProject = projects[indexPath.row]
+        let selectedProject = filteredProjects[indexPath.row]
         performSegue(withIdentifier: "showProjectDetail", sender: selectedProject)
     }
     
@@ -80,7 +80,7 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let projectToDelete = projects[indexPath.row]
+            let projectToDelete = filteredProjects[indexPath.row]
             let projectTitle = projectToDelete.title
             
             Task {
@@ -89,8 +89,23 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
                     try await APIService.shared.deleteProject(projectTitle: projectTitle)
                     
                     // Başarılı: UI'ı ana thread'de güncelle.
-                    DispatchQueue.main.async {
-                        self.projects.remove(at: indexPath.row)
+                    DispatchQueue.main.async { [weak self] in
+                        
+                        guard let self = self else{
+                            return
+                        }
+                        
+                        // Projeyi, filtrelenmiş listeden sil.
+                        self.filteredProjects.remove(at: indexPath.row)
+                        
+                        // Projeyi, ana kopyamız olan 'projects' dizisinden de bulup silmeliyiz!
+                        // Bu, arama temizlendiğinde silinen projenin geri gelmesini engeller.
+                        
+                        if let indexAllInProjects = self.projects.firstIndex(where: {$0.id == projectToDelete.id}){
+                            self.projects.remove(at: indexAllInProjects)
+                        }
+                        
+                        // 2. ADIM: SONRA arayüze (TableView'e) bu değişikliği yansıtmasını söyle.
                         tableView.deleteRows(at: [indexPath], with: .automatic)
                     }
                     
