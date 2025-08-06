@@ -199,32 +199,6 @@ class APIService {
     }
     
     func deleteProject(projectTitle: String) async throws{
-        /*// 1. URL'i oluştur (proje ID'sini URL'in sonuna ekleyerek)
-        let urlString = "\(NetworkInfo.Hosts.localHost)/deleteproject\(projectId)"
-        guard let url = URL(string: urlString) else {
-            throw URLError(.badURL)
-        }
-        
-        // 2. Keychain'den token'ı al
-        guard let token = KeyChainManager.shared.getToken() else{
-            return
-        }
-        
-        
-        // 3. DELETE isteğini oluştur ve Authorization başlığını ekle
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        // 4. API isteğini yap ve yanıtı bekle
-        let (_, response) = try await URLSession.shared.data(for: request)
-        
-        // 5. Yanıtın durum kodunu kontrol et (200 OK veya 204 No Content bekliyoruz)
-        guard let httpResponse = response as? HTTPURLResponse,
-        (httpResponse.statusCode == 200 || httpResponse.statusCode == 204) else{
-            throw URLError(.badServerResponse)
-        }*/
-        
         print("--- PROJE SİLME TESTİ BAŞLADI ---")
             
             // 1. ADIM: URL'i kontrol et
