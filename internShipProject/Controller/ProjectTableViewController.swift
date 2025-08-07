@@ -29,7 +29,6 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
         searchBar.delegate = self
         
         refreshController.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        
         tableView.refreshControl = refreshController
     }
     
@@ -113,9 +112,7 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
                     // Hata: Kullanıcıya bir uyarı göster.
                     DispatchQueue.main.async {
                         print("Proje silinemedi: \(error.localizedDescription)")
-                        let alert = UIAlertController(title: "Hata", message: "Proje silinirken bir sorun oluştu.", preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: "Tamam", style: .default))
-                        self.present(alert, animated: true)
+                        AlertHelper.showAlert(viewController: self, title: "Hata", message: "Proje silinirken bir sorun oluştu.")
                     }
                 }
             }
@@ -128,6 +125,13 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
     
     // 2. ADIM: API İsteği Yapan Fonksiyonu Ekle
     func fetcUserProjects() async{
+        
+        if !refreshController.isRefreshing {
+                    DispatchQueue.main.async {
+                        self.refreshController.beginRefreshing()
+                    }
+                }
+        
         do{
             // APIService'den projeleri çekiyoruz.
             let fetchedProjects = try await APIService.shared.fetchProjects()
@@ -144,7 +148,7 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
         }catch{
             // Hata: Kullanıcıya bir uyarı gösteriyoruz.
             // --- DAHA DETAYLI HATA AYIKLAMA ---
-                print("HATA YAKALANDI: \(error.localizedDescription)")
+                /*print("HATA YAKALANDI: \(error.localizedDescription)")
 
                 // Hatanın bir DecodingError olup olmadığını kontrol et
                 if let decodingError = error as? DecodingError {
@@ -170,9 +174,30 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
                         fatalError()
                     }
                     print("---------------------------------")
-                }
-            self.refreshController.endRefreshing()
-                // ------------------------------------
+                }*/
+            
+            
+            DispatchQueue.main.async {
+                [weak self] in
+                
+                guard let self = self else{ return }
+                
+                var errorMessage = "Bilinmeyen bir hata oluştu."
+                        if let apiError = error as? APIError {
+                            switch apiError {
+                            case .unauthorized:
+                                errorMessage = "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın."
+                                // Burada kullanıcıyı otomatik olarak login ekranına da yönlendirebilirsin.
+                            default:
+                                errorMessage = error.localizedDescription
+                            }
+                        } else {
+                            errorMessage = "Lütfen internet bağlantınızı kontrol edin."
+                        }
+                AlertHelper.showAlert(viewController: self, title: "Hata", message: errorMessage)
+                self.refreshController.endRefreshing()
+            }
+            
                 
         }
     }

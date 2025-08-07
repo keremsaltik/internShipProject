@@ -57,27 +57,36 @@ class LoginViewController: UIViewController {
                 // APIService'i çağır ve yanıtı bekle
                 let response = try await APIService.shared.login(requestData: loginData)
                 
-                if response.success {
-                    // GİRİŞ BAŞARILI
-                    print("Başarıyla giriş yapıldı: \(response.message)")
-                    // Token'ı HER ZAMAN kaydet. Bu, kullanıcının giriş yapmış olduğu anlamına gelir.
-                    KeyChainManager.shared.saveToken(token: response.token)
-                    
-                    // 3. Kaydettikten hemen sonra geri okumayı dene. nil mi dönüyor?
-                    let savedToken = KeyChainManager.shared.getToken()
-                    print("Kaydettikten hemen sonra okunan token: \(savedToken ?? "HATA: Token kaydedilemedi veya okunamadı!")")
-                    
-                    switchToMainApp()
-                } else {
-                    // GİRİŞ BAŞARISIZ
-                    print("Giriş hatası: \(response.message)")
-                    AlertHelper.showAlert(viewController: self, title: "Giriş Başarısız", message: response.message)
-                }
+                // Bu blok sadece ve sadece 200 OK durumunda çalışacak.
+                print("Başarıyla giriş yapıldı: \(response.message)")
+                            
+                // Token'ı kaydet ve ana ekrana geç.
+                KeyChainManager.shared.saveToken(token: response.token)
+                switchToMainApp()
                 
             } catch {
+                
+                var errorMessage = "Bilinmeyen bir hata oluştu."
+                
+                if let apiError = error as? APIError{
+                    switch apiError{
+                    case .unauthorized(let message):
+                        errorMessage = message
+                        
+                    case .serverError(let message):
+                        errorMessage = message
+                    
+                    default:
+                        // Bu, bizim tanımlamadığımız genel bir ağ hatasıdır (örn: internet yok).
+                        errorMessage = "Lütfen internet bağlantınızı kontrol edin"
+                    }
+                }
+                
                 // AĞ HATASI
-                print("API isteğinde bir hata oluştu: \(error.localizedDescription)")
-                AlertHelper.showAlert(viewController: self, title: "Ağ hatası", message: "Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.")
+                DispatchQueue.main.async {
+                    AlertHelper.showAlert(viewController: self, title: "Giriş Başarısız", message: errorMessage)
+                }
+                print("Giriş hatası: \(error.localizedDescription)")
             }
         }
         

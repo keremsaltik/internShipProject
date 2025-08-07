@@ -25,7 +25,9 @@ class CreateProjectTableViewController: UITableViewController {
     var selectedCategory: String?
     
     var availableManagers : [UserViewModel] = []
-    let avaliableCategories = ["Müşteri Deneyimi ve Dijital Bankacılık","Ödeme ve Transfer Sistemleri","Güvenlik ve Kimlik Doğrulama", "Kredi ve Finansman", "Veri Analitiği ve Raporlama", "Yatırım ve Varlık Yönetimi", "Regülasyon ve Uyumluluk", "Fintech Entegrasyonları", "Sürdürülebilirlik ve Sosyal Finans", "Operasyonel Verimlilik"]
+    var avaliableCategories : [CategoryModel] = []
+    
+    let menuManager = MenuManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,28 +36,13 @@ class CreateProjectTableViewController: UITableViewController {
         
         Task{
             await fetchManagersandSetupMenu()
+            await fetchCategoriesandSetupMenu()
+            
         }
         
     }
     
-    // MARK: - Table view data source
-    
-    /*override func numberOfSections(in tableView: UITableView) -> Int {
-     // #warning Incomplete implementation, return the number of sections
-     return 0
-     }
-     
-     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-     // #warning Incomplete implementation, return the number of rows
-     return 0
-     }*/
-    
     //MARK: - Actions
-    
-    /*// "İptal" butonuna basıldığında
-     @IBAction func cancelButtonTapped(_ sender: UIButton!){
-     dismiss(animated: true)
-     }*/
     
     // "Kaydet" butonuna basıldığında
     @IBAction func saveButtonTapped(_ sender: UIButton!){
@@ -65,16 +52,16 @@ class CreateProjectTableViewController: UITableViewController {
               let description = descriptionTextView.text, !description.isEmpty
         else {
             // Kullanıcıya bir uyarı göster
-            showAlert(title: "Eksik Bilgi", message: "Lütfen başlık ve açıklama alanlarını doldurun.")
+            AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen başlık ve açıklama alanlarını doldurun.")
             return
         }
         guard let projectManager = selectedManager?.name else {
-                   showAlert(title: "Eksik Bilgi", message: "Lütfen bir proje yöneticisi seçin.")
+            AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen bir proje yöneticisi seçin.")
                    return
         }
         
         guard let category = selectedCategory else {
-               showAlert(title: "Eksik Bilgi", message: "Lütfen bir kategori seçin.")
+            AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen bir kategori seçin.")
                return
            }
         // 2. Seçili tarihleri al
@@ -83,7 +70,7 @@ class CreateProjectTableViewController: UITableViewController {
         
         // Bitiş tarihinin başlangıç tarihinden önce olup olmadığını kontrol et
         if endDate < startDate {
-            showAlert(title: "Geçersiz Tarih", message: "Proje bitiş tarihi, başlangıç tarihinden önce olamaz.")
+            AlertHelper.showAlert(viewController: self, title: "Geçersiz Tarih" , message: "Proje bitiş tarihi, başlangıç tarihinden önce olamaz.")
             return
         }
         
@@ -128,14 +115,15 @@ class CreateProjectTableViewController: UITableViewController {
                 } else {
                     // Backend'den gelen özel bir hata mesajı varsa onu göster.
                     DispatchQueue.main.async {
-                        self.showAlert(title: "Kayıt Başarısız", message: response.message ?? "Proje oluşturulurken bir hata oluştu.")
+                        AlertHelper.showAlert(viewController: self, title: "Kayıt Başarısız", message: response.message ?? "Proje oluşturulurken bir hata oluştu")
+                        //self.showAlert(title: "Kayıt Başarısız", message: response.message ?? "Proje oluşturulurken bir hata oluştu.")
                     }
                 }
             } catch {
                 // Ağ hatası veya başka bir sorun.
                 DispatchQueue.main.async {
                     print("Proje oluşturulamadı: \(error.localizedDescription)")
-                    self.showAlert(title: "Ağ Hatası", message: "Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.")
+                    AlertHelper.showAlert(viewController: self, title: "Ağ Hatası", message: "Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.")
                 }
             }
         }
@@ -168,6 +156,23 @@ class CreateProjectTableViewController: UITableViewController {
     }
     
         // --- Kategori Menüsünü Ayarlama ---
+    func fetchCategoriesandSetupMenu() async{
+        do{
+            let categories = try await APIService.shared.fetchCategories()
+            self.avaliableCategories = categories
+        
+            DispatchQueue.main.async{
+                self.setUpCategoryMenu()
+            }
+        }catch{
+            print("Kategori listesi çekilemedi: \(error.localizedDescription)")
+            
+            DispatchQueue.main.async{
+                self.categoryButton.setTitle("Kategori bulunamadı", for: .normal)
+            }
+        }
+    }
+    
     func setUpCategoryMenu() {
         // 1. ADIM: Kullanıcı bir seçim yaptığında ne olacağını tanımla.
         let menuClosure = { [weak self] (action: UIAction) in
@@ -178,8 +183,8 @@ class CreateProjectTableViewController: UITableViewController {
         }
         
         // 2. ADIM: Veri kaynağından menü elemanlarını oluştur.
-        let menuItems = avaliableCategories.map { categoryName in
-            UIAction(title: categoryName, handler: menuClosure)
+        let menuItems = avaliableCategories.map { category in
+            UIAction(title: category.name, handler: menuClosure)
         }
         
         // 3. ADIM: Menüyü oluştur ve butona ata.
@@ -190,16 +195,6 @@ class CreateProjectTableViewController: UITableViewController {
         categoryButton.setTitle("Kategori Seçin", for: .normal)
         selectedCategory = nil
     }
-        
-        //MARK: - Helper Functions
-        
-        // Uyarıları göstermek için yardımcı bir fonksiyon
-        func showAlert(title: String, message: String) {
-            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: nil))
-            present(alert, animated: true)
-        }
-    
 
     func setupManagerMenu() {
         let menuClosure = { [weak self] (action: UIAction) in
@@ -221,12 +216,8 @@ class CreateProjectTableViewController: UITableViewController {
         projectManagerButton.showsMenuAsPrimaryAction = true
         
         // Başlangıç durumunu ayarla.
-        if let firstManager = availableManagers.first {
-            projectManagerButton.setTitle(firstManager.name, for: .normal)
-            selectedManager = firstManager
-        } else {
-            projectManagerButton.setTitle("Yönetici Seçin", for: .normal)
-        }
+        projectManagerButton.setTitle("Yönetici Seçin", for: .normal)
+        selectedManager = nil
     }
         
 }

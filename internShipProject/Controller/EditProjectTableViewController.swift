@@ -34,7 +34,7 @@ class EditProjectTableViewController: UITableViewController {
        var availableManagers: [UserViewModel] = []
        var selectedManagerName: String?
        
-       let availableCategories = ["Müşteri Deneyimi ve Dijital Bankacılık", "Ödeme ve Transfer Sistemleri", "Güvenlik ve Kimlik Doğrulama", "Kredi ve Finansman", "Veri Analitiği ve Raporlama", "Yatırım ve Varlık Yönetimi", "Regülasyon ve Uyumluluk", "Fintech Entegrasyonları", "Sürdürülebilirlik ve Sosyal Finans", "Operasyonel Verimlilik"]
+       var availableCategories: [CategoryModel] = []
        var selectedCategory: String?
     
     override func viewDidLoad() {
@@ -44,24 +44,13 @@ class EditProjectTableViewController: UITableViewController {
         
         Task{
             await fetchManagersandSetupMenu()
+            await fetchCategoriesandSetupMenu()
             // Gelen veriyle formu doldurmak için yeni bir fonksiyon çağıralım.
             populateForm()
         }
         
         
     }
-    
-    // MARK: - Table view data source
-    
-    /*override func numberOfSections(in tableView: UITableView) -> Int {
-     // #warning Incomplete implementation, return the number of sections
-     return 0
-     }
-     
-     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-     // #warning Incomplete implementation, return the number of rows
-     return 0
-     }*/
     
     //MARK: - Actions
     // "Kaydet" butonuna basıldığında
@@ -77,7 +66,7 @@ class EditProjectTableViewController: UITableViewController {
               let description = descriptionTextView.text, !description.isEmpty,
               let projectManager = selectedManagerName,
               let category = selectedCategory else{
-            showAlert(title: "Eksik bilgi.", message: "Lütfen tüm alanları doldurun ve seçim yapın.")
+            AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen tüm alanları doldurun ve seçim yapın.")
             return
         }
         
@@ -85,7 +74,7 @@ class EditProjectTableViewController: UITableViewController {
         let endDate = endDatePicker.date
         
         if endDate < startDate {
-                    showAlert(title: "Geçersiz Tarih", message: "Proje bitiş tarihi, başlangıç tarihinden önce olamaz.")
+            AlertHelper.showAlert(viewController: self, title: "Geçersiz Tarih", message: "Proje bitiş tarihi, başlangıç tarihinden önce olamaz.")
                     return
                 }
         
@@ -129,13 +118,34 @@ class EditProjectTableViewController: UITableViewController {
                     }
                 }else{
                     DispatchQueue.main.async{ [weak self] in
-                        self?.showAlert(title: "Güncelleme Başarısız.", message: response.message ?? "Güncelleme yapılırken bir hata oluştu.")
+                        guard let self = self else {
+                                // Eğer self nil ise (yani kullanıcı bu işlem bitmeden ekranı kapattıysa),
+                                // hiçbir şey yapma ve bu kod bloğundan güvenli bir şekilde çık.
+                                return
+                            }
+                            
+                            // 2. Artık bu bloğun içinde, 'self'in nil olmadığından eminiz.
+                            // Bu yüzden onu güvenle kullanabiliriz.
+                            AlertHelper.showAlert(viewController: self,
+                                                  title: "Güncelleme Başarısız",
+                                                  message: "Güncelleme yapılırken bir hata oluştu.")
+                        }
                     }
-                }
+                
             }catch{
                 DispatchQueue.main.async{ [weak self] in
                     print("Proje güncellenemedi: \(error.localizedDescription)")
-                    self?.showAlert(title: "Ağ hatası", message: "Sunucuya bağlanılamadı")
+                    guard let self = self else {
+                            // Eğer self nil ise (yani kullanıcı bu işlem bitmeden ekranı kapattıysa),
+                            // hiçbir şey yapma ve bu kod bloğundan güvenli bir şekilde çık.
+                            return
+                        }
+                        
+                        // 2. Artık bu bloğun içinde, 'self'in nil olmadığından eminiz.
+                        // Bu yüzden onu güvenle kullanabiliriz.
+                        AlertHelper.showAlert(viewController: self,
+                                              title: "Güncelleme Başarısız",
+                                              message: "Güncelleme yapılırken bir hata oluştu.")
                 }
             }
         }
@@ -168,6 +178,24 @@ class EditProjectTableViewController: UITableViewController {
     }
     
         // --- Kategori Menüsünü Ayarlama ---
+    func fetchCategoriesandSetupMenu() async{
+        do{
+            let categories = try await APIService.shared.fetchCategories()
+            self.availableCategories = categories
+            
+            DispatchQueue.main.async{
+                self.setUpCategoryMenu()
+            }
+        }catch{
+            print("Kategori listesi çekilemedi: \(error.localizedDescription)")
+            
+            DispatchQueue.main.async{
+                self.categoryButton.setTitle("Kategori mevcut değil", for: .normal)
+            }
+        }
+    }
+    
+    
     func setUpCategoryMenu() {
         let menuClosure = { [weak self] (action: UIAction) in
                     guard let self = self else { return }
@@ -176,7 +204,7 @@ class EditProjectTableViewController: UITableViewController {
                 }
                 
                 let menuItems = availableCategories.map { categoryName in
-                    UIAction(title: categoryName, handler: menuClosure)
+                    UIAction(title: categoryName.name, handler: menuClosure)
                 }
                 
                 categoryButton.menu = UIMenu(children: menuItems)
@@ -187,15 +215,6 @@ class EditProjectTableViewController: UITableViewController {
                     categoryButton.setTitle("Kategori Seçin", for: .normal)
                 }
     }
-        
-        //MARK: - Helper Functions
-        
-        // Uyarıları göstermek için yardımcı bir fonksiyon
-        func showAlert(title: String, message: String) {
-            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: nil))
-            present(alert, animated: true)
-        }
     
 
     func setupManagerMenu() {
@@ -235,8 +254,8 @@ class EditProjectTableViewController: UITableViewController {
                 }
                 
                 // Date Picker'ları dolduralım
-        startDatePicker.date = project.startDate
-        endDatePicker.date = project.endDate
+                startDatePicker.date = project.startDate
+                endDatePicker.date = project.endDate
                 
                 // Seçim değişkenlerini ve buton başlıklarını doldur
                 selectedManagerName = project.projectManager

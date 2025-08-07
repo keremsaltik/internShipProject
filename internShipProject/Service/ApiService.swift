@@ -9,7 +9,33 @@
 
 import Foundation
 
+enum APIError: Error,LocalizedError{
+    case unauthorized(message: String) // 401: Token geçersiz veya şifre yanlış
+    case serverError(message: String) // 409: E-posta zaten kullanımda
+    case decodingError // 5xx: Sunucu tarafı hatası
+    case urlError // Gelen JSON veri formatı bozuk
+    case conflict(message: String) // Programatik olarak URL oluşturulamadı
+    
+    // Bu kısım, her bir hata tipi için kullanıcıya gösterilecek standart bir metin sağlar.
+    var errorDescription: String?{
+        switch self{
+        case .unauthorized(let message):
+            return message
+        case .serverError(let message):
+            return message
+        case .conflict(let message):
+            return message
+        case .decodingError:
+            return "Sunucudan gelen yanıt anlaşılamadı. Lütfen daha sonra tekrar deneyin."
+        case .urlError:
+            return "Uygulama, geçersiz bir sunucu adresine bağlanmaya çalıştı."
+        }
+    }
+}
+
 class APIService {
+    
+   
     
     // Bu servis sınıfına projenin her yerinden kolayca erişmek için Singleton yapısı
     static let shared = APIService()
@@ -22,7 +48,7 @@ class APIService {
         let urlString = "\(NetworkInfo.Hosts.localHost)/login" // <-- Kendi IP adresiimiz.
         
         guard let url = URL(string: urlString) else {
-            throw URLError(.badURL) // Geçersiz URL hatası fırlat
+            throw APIError.urlError // Geçersiz URL hatası fırlat
         }
         
         // 2. HTTP POST isteğini oluştur
@@ -38,12 +64,32 @@ class APIService {
         
         // 4. Yanıtın başarılı olup olmadığını kontrol et (örn: HTTP 200 OK)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw URLError(.badServerResponse) // Sunucu hatası fırlat
+            throw APIError.serverError(message: "Geçersiz Sunucu Yanıtı") // Sunucu hatası fırlat
         }
         
         // 5. Gelen JSON verisini LoginResponse modeline dönüştür ve geri döndür
-        let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-        return loginResponse
+        let loginResponse = try? JSONDecoder().decode(LoginResponse.self, from: data)
+        
+        // Durum koduna göre karar verelim.
+               switch httpResponse.statusCode {
+               case 200:
+                   // Başarılı!
+                   if let response = loginResponse {
+                       return response
+                   } else {
+                       // 200 OK geldi ama veri çözülemedi, bu garip bir durum.
+                       throw APIError.decodingError
+                   }
+               case 401, 404: // 401 Unauthorized veya 404 Not Found (Kullanıcı bulunamadı)
+                   // Başarısız giriş. Sunucudan gelen hata mesajını kullanalım.
+                   let message = loginResponse?.message ?? "E-posta veya şifre hatalı."
+                   throw APIError.unauthorized(message: message)
+               default:
+                   // Diğer tüm sunucu hataları.
+                   let message = loginResponse?.message ?? "Sunucuda bilinmeyen bir hata oluştu."
+                   throw APIError.serverError(message: message)
+               }
+        
     }
     
     func register(requestData: RegisterRequest) async throws -> RegisterResponse{
@@ -51,7 +97,7 @@ class APIService {
         let urlString = "\(NetworkInfo.Hosts.localHost)/createUser" // Sunucu adresi
         
         guard let url = URL(string: urlString) else{
-            throw URLError(.badURL)
+            throw APIError.urlError
         }
         
         // İstek oluşturma
@@ -67,12 +113,25 @@ class APIService {
         
         // Yanıtın başarılı olup olmadığı ile ilgili kontrol
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else{
-            throw URLError(.badServerResponse) //Sunucu hatası
+            throw APIError.serverError(message: "Geçersiz sunucu yanıtı") //Sunucu hatası
         }
         
         // Gelen JSON verisini RegisterResponse modeline dönüştür ve geri döndür.
-        let registerResponse = try JSONDecoder().decode(RegisterResponse.self, from: data)
-        return registerResponse
+        let registerResponse = try? JSONDecoder().decode(RegisterResponse.self, from: data)
+        switch httpResponse.statusCode {
+           case 201: // Created
+            if let response = registerResponse {
+                   return response
+               } else {
+                   throw APIError.decodingError
+               }
+           case 409: // Conflict (E-posta zaten var)
+            let message = registerResponse?.message ?? "Bu e-posta adresi zaten kullanılıyor."
+               throw APIError.conflict(message: message)
+           default:
+            let message = registerResponse?.message ?? "Sunucuda bilinmeyen bir hata oluştu."
+               throw APIError.serverError(message: message)
+           }
     }
     
     
@@ -291,6 +350,26 @@ class APIService {
         
         let users = try JSONDecoder().decode([UserViewModel].self, from: data)
         return users
+    }
+    
+    func fetchCategories() async throws -> [CategoryModel]{
+        let urlString = "\(NetworkInfo.Hosts.localHost)/categories"
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+            
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponses = response as? HTTPURLResponse, httpResponses.statusCode == 200 else{
+            throw URLError(.badServerResponse)
+        }
+        
+        let categories = try JSONDecoder().decode([CategoryModel].self, from: data)
+        return categories
     }
     
     func updateProject(projectData: ProjectModel) async throws -> GenericResponse {

@@ -69,20 +69,38 @@ class RegisterViewController: UIViewController {
             do{
                 let response = try await APIService.shared.register(requestData: registerData)
                 
-                do{
-                    if response.success{
-                        print("Başarıyla kayıt olundu")
-                        showSuccessAlertandGoBack()
-                    }else{
-                        print("Kayıt hatası: \(response.message)")
-                        AlertHelper.showAlert(viewController: self, title: "Kayıt Başarısız", message:  response.message ?? "Bilinmeyen bir hata oluştu.")
-                    }
+                if response.success {
+                            print("Başarıyla kayıt olundu")
+                            showSuccessAlertandGoBack()
+                        }
                 }catch{
-                    AlertHelper.showAlert(viewController: self, title: "Ağ hatası", message: "Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyiniz.")
+                    var errorMessage = "Bilinmeyen bir hata oluştu."
+                           
+                           if let apiError = error as? APIError {
+                               // Bizim tanımladığımız özel hataları yakala
+                               switch apiError {
+                               case .conflict(let message):
+                                   // E-posta çakışması hatası
+                                   errorMessage = message
+                               default:
+                                   // Diğer sunucu, URL veya çözümleme hataları
+                                   errorMessage = apiError.localizedDescription
+                               }
+                           } else {
+                               // Genel ağ hatası (örn: internet yok)
+                               errorMessage = "Lütfen internet bağlantınızı kontrol edin."
+                           }
+                           
+                           // UI güncellemesi her zaman ana thread'de yapılmalı.
+                           DispatchQueue.main.async {
+                               AlertHelper.showAlert(viewController: self, title: "Kayıt Başarısız", message: errorMessage)
+                           }
+                           
+                           print("Kayıt hatası: \(error.localizedDescription)")
                 }
             }
         }
-    }
+    
 
   
     //MARK: - Functions
