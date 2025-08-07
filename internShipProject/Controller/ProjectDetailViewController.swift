@@ -22,7 +22,6 @@ class ProjectDetailViewController: UIViewController, UITableViewDataSource, UITa
     @IBOutlet weak var tableView: UITableView!
     // TableView'in kullanacağı veri kaynağı dizisi
     var detailItems : [ProjectDetailModel] = []
-    weak var delegate: ProjectDetailDelegate?
     
     //MARK: - LifeCycle
     override func viewDidLoad() {
@@ -38,17 +37,43 @@ class ProjectDetailViewController: UIViewController, UITableViewDataSource, UITa
         prepareDataForTable()
         
         // (İsteğe bağlı) TableView'in altındaki boş hücre çizgilerini gizle
-        tableView.tableFooterView = UIView()
-        
-        // --- HATA AYIKLAMA ---
-           print("TableView'in frame'i: \(tableView.frame)")
-           print("TableView'in alpha'sı: \(tableView.alpha)")
-           print("TableView'in gizli mi: \(tableView.isHidden)")
-           // --------------------
+        tableView.tableFooterView = nil
     }
     
 
+    
+    //MARK: - Actions
+    @IBAction func shareButtonTapped(_ sender: UIButton){
+        // 1. Paylaşılacak projenin var olduğundan ve ID'sinin olduğundan emin ol.
+        guard let project = self.project else { return }
+        
+        //let projectId = project.id // Modelimizdeki '_id'ye karşılık gelen 'id'
+        guard let projectTitle = project.title.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+                print("Hata: Proje başlığı URL formatına çevrilemedi.")
+                return
+            }
+        
+        // 2. Paylaşım linkini DOĞRUDAN oluştur.
+        let shareUrlString = "\(NetworkInfo.Hosts.localHost)/share/\(projectTitle)"
+        
+        print("Paylaşılacak olan son URL: \(shareUrlString)")
+        
+        guard let shareUrl = URL(string: shareUrlString) else{
+            print("Hata: Paylaşım URL'i oluşturulamadı")
+            return
+        }
+        
+        // 3. iOS'in standart paylaşım menüsünü oluştur.
+        // Bu sefer bir metin yerine, bir URL paylaşıyoruz.
+        let activityViewController = UIActivityViewController(activityItems: [shareUrl], applicationActivities: nil)
+        
+        
+        // 4. Paylaşım menüsünü göster.
+        present(activityViewController,animated: true,completion: nil)
+        
+    }
 
+    //MARK: - Functions
     func prepareDataForTable(){
         print("--- prepareDataForTable ÇAĞRILDI ---")
         

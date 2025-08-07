@@ -130,8 +130,6 @@ class CreateProjectTableViewController: UITableViewController {
     }
     
     
-    
-    
     //MARK: - Functions
     
     // --- Proje Yöneticisi Menüsünü Ayarlama ---

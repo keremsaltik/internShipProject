@@ -283,7 +283,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="hMl-7Q-nak">
-                                <rect key="frame" x="20" y="158" width="362" height="633"/>
+                                <rect key="frame" x="20" y="166.33333333333331" width="362" height="624.66666666666674"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="DetailCell" textLabel="iku-vV-mdt" detailTextLabel="bdY-v2-w9J" style="IBUITableViewCellStyleSubtitle" id="yg6-jf-KZN">
@@ -324,11 +324,22 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Proje Detayları" id="HmI-RD-eI5">
-                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="CYD-ys-GiE">
-                            <connections>
-                                <segue destination="hSn-nj-gyi" kind="show" identifier="editProjectSegue" id="ZvP-iI-HPF"/>
-                            </connections>
-                        </barButtonItem>
+                        <centerItemGroups>
+                            <barButtonItemGroup customizationDisposition="fixed" id="pd3-4E-o1c">
+                                <barButtonItems>
+                                    <barButtonItem title="Paylaş" image="square.and.arrow.up" catalog="system" id="ybT-2j-8XN">
+                                        <connections>
+                                            <action selector="shareButtonTapped:" destination="usf-hN-6gh" id="d52-NC-bzA"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Düzenle" image="pencil" catalog="system" id="CYD-ys-GiE">
+                                        <connections>
+                                            <segue destination="hSn-nj-gyi" kind="show" identifier="editProjectSegue" id="ZvP-iI-HPF"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </barButtonItems>
+                            </barButtonItemGroup>
+                        </centerItemGroups>
                     </navigationItem>
                     <connections>
                         <outlet property="tableView" destination="hMl-7Q-nak" id="uMC-hz-3cI"/>
@@ -1017,7 +1028,9 @@
     <resources>
         <image name="folder.fill" catalog="system" width="128" height="96"/>
         <image name="house.fill" catalog="system" width="128" height="104"/>
+        <image name="pencil" catalog="system" width="128" height="113"/>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
+        <image name="square.and.arrow.up" catalog="system" width="110" height="128"/>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
