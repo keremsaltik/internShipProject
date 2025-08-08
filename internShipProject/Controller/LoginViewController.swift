@@ -46,6 +46,7 @@ class LoginViewController: UIViewController {
                 return
             }
         
+        // JWT işlemi için
         let passwordData = Data(password.utf8)
         let digest = SHA256.hash(data: passwordData)
 

@@ -11,7 +11,7 @@ protocol EditProjectDelegate: AnyObject {
     func didUpdateProject()
 }
 
-class EditProjectTableViewController: UITableViewController {
+class EditProjectTableViewController: UITableViewController, UITextViewDelegate{
     
     //MARK: - Variables
     // Storyboard'daki elemanlar için IBOutlet'ları oluştur
@@ -37,10 +37,16 @@ class EditProjectTableViewController: UITableViewController {
        var availableCategories: [CategoryModel] = []
        var selectedCategory: String?
     
+        let descriptionPlaceHolder = "Proje açıklaması"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setUpCategoryMenu()
+        
+        descriptionTextView.delegate = self
+        descriptionTextView.text = descriptionPlaceHolder
+        descriptionTextView.textColor = .placeholderText
         
         Task{
             await fetchManagersandSetupMenu()
@@ -63,7 +69,7 @@ class EditProjectTableViewController: UITableViewController {
         
         // 2. Formdaki tüm alanlardan güncel verileri toplayalım.
         guard let title = titleTextField.text, !title.isEmpty,
-              let description = descriptionTextView.text, !description.isEmpty,
+              let description = descriptionTextView.text, !description.isEmpty, description != descriptionPlaceHolder,
               let projectManager = selectedManagerName,
               let category = selectedCategory else{
             AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen tüm alanları doldurun ve seçim yapın.")
@@ -264,6 +270,22 @@ class EditProjectTableViewController: UITableViewController {
                 selectedCategory = project.category
                 categoryButton.setTitle(project.category, for: .normal)
     
+    }
+    
+    // Kullanıcı TextView'in içine tıkladığında...
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .placeholderText{
+            textView.text = nil
+            textView.textColor = .label // Normal metin rengi
+        }
+    }
+    
+    // Kullanıcı TextView'den çıktığında...
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty{
+            textView.text = descriptionPlaceHolder
+            textView.textColor = .placeholderText
+        }
     }
         
 }

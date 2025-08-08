@@ -17,6 +17,7 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
     var filteredProjects: [ProjectModel] = []
     
     let refreshController = UIRefreshControl()
+    let feedBackGenerator = UINotificationFeedbackGenerator()
     
     @IBOutlet weak var searchBar: UISearchBar!
     
@@ -106,6 +107,7 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
                         
                         // 2. ADIM: SONRA arayüze (TableView'e) bu değişikliği yansıtmasını söyle.
                         tableView.deleteRows(at: [indexPath], with: .automatic)
+                        feedBackGenerator.notificationOccurred(.success)
                     }
                     
                 } catch {

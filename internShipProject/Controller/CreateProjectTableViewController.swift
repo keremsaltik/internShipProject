@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CreateProjectTableViewController: UITableViewController {
+class CreateProjectTableViewController: UITableViewController, UITextViewDelegate {
     
     //MARK: - Variables
     // Storyboard'daki elemanlar için IBOutlet'ları oluştur
@@ -28,9 +28,14 @@ class CreateProjectTableViewController: UITableViewController {
     var avaliableCategories : [CategoryModel] = []
     
     let menuManager = MenuManager()
+    let descriptionPlaceHolder = "Proje açıklaması"
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        descriptionTextView.delegate = self
+        descriptionTextView.text = descriptionPlaceHolder
+        descriptionTextView.textColor = .placeholderText
         
         setUpCategoryMenu()
         
@@ -49,12 +54,13 @@ class CreateProjectTableViewController: UITableViewController {
         print("--- KAYDET BUTONUNA BASILDI ---")
         // 1. Alanlardan veriyi topla ve boş olup olmadığını kontrol et
         guard let title = titleTextField.text, !title.isEmpty,
-              let description = descriptionTextView.text, !description.isEmpty
+              let description = descriptionTextView.text, !description.isEmpty, description != descriptionPlaceHolder
         else {
             // Kullanıcıya bir uyarı göster
             AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen başlık ve açıklama alanlarını doldurun.")
             return
         }
+    
         guard let projectManager = selectedManager?.name else {
             AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen bir proje yöneticisi seçin.")
                    return
@@ -64,6 +70,8 @@ class CreateProjectTableViewController: UITableViewController {
             AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen bir kategori seçin.")
                return
            }
+        
+        
         // 2. Seçili tarihleri al
         let startDate = startDatePicker.date
         let endDate = endDatePicker.date
@@ -218,5 +226,22 @@ class CreateProjectTableViewController: UITableViewController {
         selectedManager = nil
     }
         
+    // Kullanıcı TextView'in içine tıkladığında...
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .placeholderText{
+            textView.text = nil
+            textView.textColor = .label // Normal metin rengi
+        }
+    }
+    
+    // Kullanıcı TextView'den çıktığında...
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty{
+            textView.text = descriptionPlaceHolder
+            textView.textColor = .placeholderText
+        }
+    }
+    
+    
 }
 
