@@ -13,6 +13,7 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var logOutButton: UIBarButtonItem!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var mailLabel: UILabel!
+    @IBOutlet weak var companyLabel: UILabel!
     
     
     
@@ -64,6 +65,7 @@ class ProfileViewController: UIViewController {
                     // Başarılı: Gelen taze verilerle label'ları güncelle
                     self?.nameLabel.text = profileResponse.name
                     self?.mailLabel.text = profileResponse.mail
+                    self?.companyLabel.text = profileResponse.company
                 
                 case .failure(let error):
                     AlertHelper.showAlert(viewController: self!, title: "Hata", message: "Profil bilgileri alınamadı.")

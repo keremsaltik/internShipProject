@@ -11,4 +11,5 @@ struct ProfileResponse: Codable{
     let _id: String
     let mail: String
     let name: String
+    let company: String?
 }

@@ -35,7 +35,7 @@ enum APIError: Error,LocalizedError{
 
 class APIService {
     
-   
+    
     
     // Bu servis sınıfına projenin her yerinden kolayca erişmek için Singleton yapısı
     static let shared = APIService()
@@ -71,24 +71,24 @@ class APIService {
         let loginResponse = try? JSONDecoder().decode(LoginResponse.self, from: data)
         
         // Durum koduna göre karar verelim.
-               switch httpResponse.statusCode {
-               case 200:
-                   // Başarılı!
-                   if let response = loginResponse {
-                       return response
-                   } else {
-                       // 200 OK geldi ama veri çözülemedi, bu garip bir durum.
-                       throw APIError.decodingError
-                   }
-               case 401, 404: // 401 Unauthorized veya 404 Not Found (Kullanıcı bulunamadı)
-                   // Başarısız giriş. Sunucudan gelen hata mesajını kullanalım.
-                   let message = loginResponse?.message ?? "E-posta veya şifre hatalı."
-                   throw APIError.unauthorized(message: message)
-               default:
-                   // Diğer tüm sunucu hataları.
-                   let message = loginResponse?.message ?? "Sunucuda bilinmeyen bir hata oluştu."
-                   throw APIError.serverError(message: message)
-               }
+        switch httpResponse.statusCode {
+        case 200:
+            // Başarılı!
+            if let response = loginResponse {
+                return response
+            } else {
+                // 200 OK geldi ama veri çözülemedi, bu garip bir durum.
+                throw APIError.decodingError
+            }
+        case 401, 404: // 401 Unauthorized veya 404 Not Found (Kullanıcı bulunamadı)
+            // Başarısız giriş. Sunucudan gelen hata mesajını kullanalım.
+            let message = loginResponse?.message ?? "E-posta veya şifre hatalı."
+            throw APIError.unauthorized(message: message)
+        default:
+            // Diğer tüm sunucu hataları.
+            let message = loginResponse?.message ?? "Sunucuda bilinmeyen bir hata oluştu."
+            throw APIError.serverError(message: message)
+        }
         
     }
     
@@ -119,19 +119,19 @@ class APIService {
         // Gelen JSON verisini RegisterResponse modeline dönüştür ve geri döndür.
         let registerResponse = try? JSONDecoder().decode(RegisterResponse.self, from: data)
         switch httpResponse.statusCode {
-           case 201: // Created
+        case 201: // Created
             if let response = registerResponse {
-                   return response
-               } else {
-                   throw APIError.decodingError
-               }
-           case 409: // Conflict (E-posta zaten var)
+                return response
+            } else {
+                throw APIError.decodingError
+            }
+        case 409: // Conflict (E-posta zaten var)
             let message = registerResponse?.message ?? "Bu e-posta adresi zaten kullanılıyor."
-               throw APIError.conflict(message: message)
-           default:
+            throw APIError.conflict(message: message)
+        default:
             let message = registerResponse?.message ?? "Sunucuda bilinmeyen bir hata oluştu."
-               throw APIError.serverError(message: message)
-           }
+            throw APIError.serverError(message: message)
+        }
     }
     
     
@@ -268,73 +268,74 @@ class APIService {
     
     func deleteProject(projectTitle: String) async throws{
         print("--- PROJE SİLME TESTİ BAŞLADI ---")
-            
-            // 1. ADIM: URL'i kontrol et
-            let urlString = "\(NetworkInfo.Hosts.localHost)/delProject"
-            print("1. İstek atılacak URL: \(urlString)")
-            guard let url = URL(string: urlString) else {
-                print("HATA: URL geçersiz! (URL'i veya projectId'yi kontrol et)")
-                throw URLError(.badURL)
-            }
-            
-            // 2. ADIM: Token'ı kontrol et
-            print("2. Keychain'den token okunuyor...")
-            guard let token = KeyChainManager.shared.getToken() else {
-                print("HATA: Keychain'den token okunamadı (nil)! (Kullanıcı giriş yapmış mı?)")
-                throw URLError(.userAuthenticationRequired)
-            }
-            print("3. Token başarıyla okundu.")
-            
-            // 3. ADIM: İsteği ve başlığı kontrol et
-            var request = URLRequest(url: url)
-            request.httpMethod = "DELETE"
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.httpBody = try JSONEncoder().encode(["title": projectTitle])
-            print("4. İstek metodu 'DELETE' ve başlık (header) ayarlandı.")
-            
-            // 4. ADIM: Ağ isteğini göndermeden hemen önce
-            print("5. API isteği şimdi gönderilecek...")
-            
-            do {
-                let (_, response) = try await URLSession.shared.data(for: request)
-                print("6. Sunucudan yanıt alındı.")
-                
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    print("HATA: Sunucudan gelen yanıt HTTP formatında değil.")
-                    throw URLError(.badServerResponse)
-                }
-                
-                print("7. Sunucudan gelen HTTP durum kodu: \(httpResponse.statusCode)")
-                
-                // Sunucudan gelen durum kodunu kontrol et (200 veya 204 bekliyoruz)
-                guard (httpResponse.statusCode == 200 || httpResponse.statusCode == 204) else {
-                    print("HATA: Sunucudan başarılı olmayan bir durum kodu alındı.")
-                    // 401 (Unauthorized) hatası, token'ın geçersiz veya süresinin dolmuş olduğu anlamına gelir.
-                    if httpResponse.statusCode == 401 {
-                        throw URLError(.userAuthenticationRequired)
-                    }
-                    throw URLError(.badServerResponse)
-                }
-                
-                print("--- PROJE SİLME TESTİ BAŞARILI ---")
-                // Başarılı olduğu için bir şey return etmiyoruz.
-                
-            } catch {
-                // Eğer yukarıdaki adımlardan herhangi birinde hata olursa, bu blok çalışır.
-                print("HATA YAKALANDI: \(error)")
-                print("Hatanın açıklaması: \(error.localizedDescription)")
-                throw error // Hatayı bir üst katmana fırlat
-            }
-    }
-    
-    func fetchAllUsers() async throws -> [UserViewModel]{
-        let urlString = "\(NetworkInfo.Hosts.localHost)/users/list"
-        guard let url = URL(string: urlString) else{
+        
+        // 1. ADIM: URL'i kontrol et
+        let urlString = "\(NetworkInfo.Hosts.localHost)/delProject"
+        print("1. İstek atılacak URL: \(urlString)")
+        guard let url = URL(string: urlString) else {
+            print("HATA: URL geçersiz! (URL'i veya projectId'yi kontrol et)")
             throw URLError(.badURL)
         }
         
-        guard let token = KeyChainManager.shared.getToken() else{
+        // 2. ADIM: Token'ı kontrol et
+        print("2. Keychain'den token okunuyor...")
+        guard let token = KeyChainManager.shared.getToken() else {
             print("HATA: Keychain'den token okunamadı (nil)! (Kullanıcı giriş yapmış mı?)")
+            throw URLError(.userAuthenticationRequired)
+        }
+        print("3. Token başarıyla okundu.")
+        
+        // 3. ADIM: İsteği ve başlığı kontrol et
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try JSONEncoder().encode(["title": projectTitle])
+        print("4. İstek metodu 'DELETE' ve başlık (header) ayarlandı.")
+        
+        // 4. ADIM: Ağ isteğini göndermeden hemen önce
+        print("5. API isteği şimdi gönderilecek...")
+        
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            print("6. Sunucudan yanıt alındı.")
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("HATA: Sunucudan gelen yanıt HTTP formatında değil.")
+                throw URLError(.badServerResponse)
+            }
+            
+            print("7. Sunucudan gelen HTTP durum kodu: \(httpResponse.statusCode)")
+            
+            // Sunucudan gelen durum kodunu kontrol et (200 veya 204 bekliyoruz)
+            guard (httpResponse.statusCode == 200 || httpResponse.statusCode == 204) else {
+                print("HATA: Sunucudan başarılı olmayan bir durum kodu alındı.")
+                // 401 (Unauthorized) hatası, token'ın geçersiz veya süresinin dolmuş olduğu anlamına gelir.
+                if httpResponse.statusCode == 401 {
+                    throw URLError(.userAuthenticationRequired)
+                }
+                throw URLError(.badServerResponse)
+            }
+            
+            print("--- PROJE SİLME TESTİ BAŞARILI ---")
+            // Başarılı olduğu için bir şey return etmiyoruz.
+            
+        } catch {
+            // Eğer yukarıdaki adımlardan herhangi birinde hata olursa, bu blok çalışır.
+            print("HATA YAKALANDI: \(error)")
+            print("Hatanın açıklaması: \(error.localizedDescription)")
+            throw error // Hatayı bir üst katmana fırlat
+        }
+    }
+    
+    func fetchAllUsers() async throws -> [UserViewModel] {
+        
+        let urlString = "\(NetworkInfo.Hosts.localHost)/users/list"
+        
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+        
+        guard let token = KeyChainManager.shared.getToken() else {
             throw URLError(.userAuthenticationRequired)
         }
         
@@ -344,7 +345,7 @@ class APIService {
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let httpResponses = response as? HTTPURLResponse, httpResponses.statusCode == 200 else{
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
         
@@ -353,7 +354,7 @@ class APIService {
     }
     
     func fetchCategories() async throws -> [CategoryModel]{
-        let urlString = "\(NetworkInfo.Hosts.localHost)/categories"
+        var urlString = "\(NetworkInfo.Hosts.localHost)/categories"
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
             
@@ -404,4 +405,25 @@ class APIService {
         return genericResponse
     }
     
+    func fetchAllCompanies() async throws -> [CompanyModel]{
+        let urlString = "\(NetworkInfo.Hosts.localHost)/companies"
+        
+        guard let url = URL(string: urlString) else{
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        let (data,response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponses = response as? HTTPURLResponse, httpResponses.statusCode == 200 else{
+            throw URLError(.badServerResponse)
+        }
+        
+        let categories = try JSONDecoder().decode([CompanyModel].self, from: data)
+        return categories
+    }
+    
 }
+

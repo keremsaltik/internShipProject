@@ -19,13 +19,23 @@ class CreateProjectTableViewController: UITableViewController, UITextViewDelegat
     @IBOutlet weak var prioritySegmentedControl: UISegmentedControl!
     @IBOutlet weak var categoryButton: UIButton!
     @IBOutlet weak var projectManagerButton: UIButton!
+    @IBOutlet weak var companyButton: UIButton!
+    @IBOutlet weak var employeesStackView: UIStackView!
     
     
-    var selectedManager: UserViewModel?
-    var selectedCategory: String?
+    
     
     var availableManagers : [UserViewModel] = []
-    var avaliableCategories : [CategoryModel] = []
+    var avaliableCompanies : [CompanyModel] = []
+    
+    var selectedProjectManager: UserViewModel?
+    var selectedCategory: String?
+    var selectedCompany: CompanyModel?
+    var selectedTeamMembers: [UserViewModel] = []
+    
+    
+    
+    
     
     let menuManager = MenuManager()
     let descriptionPlaceHolder = "Proje açıklaması"
@@ -37,11 +47,16 @@ class CreateProjectTableViewController: UITableViewController, UITextViewDelegat
         descriptionTextView.text = descriptionPlaceHolder
         descriptionTextView.textColor = .placeholderText
         
-        setUpCategoryMenu()
+        categoryButton.isEnabled = false
+        categoryButton.setTitle("Lütfen bir şirket seçiniz", for: .disabled)
+        
         
         Task{
+            
+            //await fetchCategoriesandSetupMenu()
+            await fetchCompaniesAndSetupMenu()
             await fetchManagersandSetupMenu()
-            await fetchCategoriesandSetupMenu()
+            
             
         }
         
@@ -60,16 +75,16 @@ class CreateProjectTableViewController: UITableViewController, UITextViewDelegat
             AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen başlık ve açıklama alanlarını doldurun.")
             return
         }
-    
-        guard let projectManager = selectedManager?.name else {
+        
+        guard let projectManager = selectedProjectManager?.name else {
             AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen bir proje yöneticisi seçin.")
-                   return
+            return
         }
         
         guard let category = selectedCategory else {
             AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen bir kategori seçin.")
-               return
-           }
+            return
+        }
         
         
         // 2. Seçili tarihleri al
@@ -94,6 +109,12 @@ class CreateProjectTableViewController: UITableViewController, UITextViewDelegat
         
         let priority = prioritySegmentedControl.titleForSegment(at: priorityIndex) ??  "Bilinmiyor"
         
+        guard let company = selectedCompany else{
+            AlertHelper.showAlert(viewController: self, title: "Eksik Bilgi", message: "Lütfen bir şirket seçin.")
+            return
+        }
+        
+        let teamMembersMail = selectedTeamMembers.map { $0.mail }
         // 5. API'ye gönderilecek istek modelini oluştur
         let newProjectData = CreateProjectRequest(
             title: title,
@@ -103,7 +124,10 @@ class CreateProjectTableViewController: UITableViewController, UITextViewDelegat
             status: status,
             category: category,
             priority: priority,
-            projectManager: projectManager
+            projectManager: projectManager,
+            teamMembers: teamMembersMail,
+            company: company.companyName
+            
             
         )
         
@@ -138,94 +162,168 @@ class CreateProjectTableViewController: UITableViewController, UITextViewDelegat
     }
     
     
+    
+    @IBAction func addEmployeeButtonTapped(_ sender: UIButton){
+        guard let selectionViewController = storyboard?.instantiateViewController(withIdentifier: "EmployeesSelectionViewController") as? EmployeesSelectionViewController else {
+            return
+        }
+        
+        
+        // Halihazırda seçili olanları, seçim ekranına gönderiyoruz.
+        selectionViewController.previouslySelectedEmployees = self.selectedTeamMembers
+        
+        // --- DEĞİŞİKLİK BURADA ---
+        // 'delegate' atamak yerine, 'onDone' closure'ını tanımlıyoruz.
+        // Bu, "Seçim ekranı kapandığında ve 'onDone' çağrıldığında ne yapılacağını" söyler.
+        selectionViewController.onDone = { [weak self] selectedEmployees in
+            
+            self?.selectedTeamMembers = selectedEmployees
+            
+            // Arayüzü güncelle
+            print("Closure ile seçilen çalışan sayısı: \(selectedEmployees.count)")
+            self?.updateTeamMembersStackView()
+        }
+        let navController = UINavigationController(rootViewController: selectionViewController)
+        present(navController, animated: true)
+    }
+    
+    
     //MARK: - Functions
     
     // --- Proje Yöneticisi Menüsünü Ayarlama ---
     func fetchManagersandSetupMenu() async{
         do{
-            let users = try await APIService.shared.fetchAllUsers()
-            self.availableManagers = users
+                   let users = try await APIService.shared.fetchAllUsers()
+                   self.availableManagers = users
+               
+               
+               DispatchQueue.main.async{
+                   self.setupManagerMenu()
+               }
+           }catch{
+               print("Kullanıcı listesi çekilemedi: \(error.localizedDescription)")
+               
+               // Yönetici yoksa buton pasif duruma geçsin
+               DispatchQueue.main.async{
+                   self.projectManagerButton.setTitle("Yönetici Yok", for: .normal)
+               }
+           }
         
-        
-        DispatchQueue.main.async{
-            self.setupManagerMenu()
-        }
-    }catch{
-        print("Kullanıcı listesi çekilemedi: \(error.localizedDescription)")
-        
-        // Yönetici yoksa buton pasif duruma geçsin
-        DispatchQueue.main.async{
-            self.projectManagerButton.setTitle("Yönetici Yok", for: .normal)
-        }
-    }
-        
-    }
-    
-        // --- Kategori Menüsünü Ayarlama ---
-    func fetchCategoriesandSetupMenu() async{
-        do{
-            let categories = try await APIService.shared.fetchCategories()
-            self.avaliableCategories = categories
-        
-            DispatchQueue.main.async{
-                self.setUpCategoryMenu()
-            }
-        }catch{
-            print("Kategori listesi çekilemedi: \(error.localizedDescription)")
             
-            DispatchQueue.main.async{
-                self.categoryButton.setTitle("Kategori bulunamadı", for: .normal)
+        }
+    
+    func setUpCategoryMenu(for company: CompanyModel) {
+        let categoriesForCompany = company.categories
+        print("Categories for \(company.companyName): \(categoriesForCompany)")
+        
+        if categoriesForCompany.isEmpty {
+            categoryButton.setTitle("Kategori Yok", for: .normal)
+            categoryButton.isEnabled = false
+            categoryButton.menu = nil
+            selectedCategory = nil
+            return
+        }
+        
+        let menuItems = categoriesForCompany.map { categoryName in
+            UIAction(title: categoryName) { [weak self] _ in
+                self?.selectedCategory = categoryName
+                self?.categoryButton.setTitle(categoryName, for: .normal)
             }
         }
-    }
-    
-    func setUpCategoryMenu() {
-        // 1. ADIM: Kullanıcı bir seçim yaptığında ne olacağını tanımla.
-        let menuClosure = { [weak self] (action: UIAction) in
-            guard let self = self else { return }
-            
-            self.selectedCategory = action.title
-            self.categoryButton.setTitle(action.title, for: .normal)
-        }
         
-        // 2. ADIM: Veri kaynağından menü elemanlarını oluştur.
-        let menuItems = avaliableCategories.map { category in
-            UIAction(title: category.name, handler: menuClosure)
-        }
-        
-        // 3. ADIM: Menüyü oluştur ve butona ata.
         categoryButton.menu = UIMenu(children: menuItems)
         categoryButton.showsMenuAsPrimaryAction = true
-        
-        // 4. ADIM: Başlangıç durumunu ayarla.
-        categoryButton.setTitle("Kategori Seçin", for: .normal)
-        selectedCategory = nil
+        categoryButton.setTitle(categoriesForCompany.first ?? "Kategori Seçin", for: .normal)
+        selectedCategory = categoriesForCompany.first
+        categoryButton.isEnabled = true
     }
-
+    
     func setupManagerMenu() {
+        if availableManagers.isEmpty {
+            projectManagerButton.setTitle("Yönetici Yok", for: .normal)
+            projectManagerButton.isEnabled = false
+            projectManagerButton.menu = nil
+            selectedProjectManager = nil
+            return
+        }
+        
         let menuClosure = { [weak self] (action: UIAction) in
             guard let self = self else { return }
             
-            // Seçilen yöneticinin tam nesnesini bulalım.
             if let manager = self.availableManagers.first(where: { $0.name == action.title }) {
-                self.selectedManager = manager
+                self.selectedProjectManager = manager
                 self.projectManagerButton.setTitle(manager.name, for: .normal)
             }
         }
         
-        // API'den gelen 'availableManagers' dizisini kullanarak menüyü oluştur.
         let menuItems = availableManagers.map { user in
             UIAction(title: user.name, handler: menuClosure)
         }
         
         projectManagerButton.menu = UIMenu(children: menuItems)
         projectManagerButton.showsMenuAsPrimaryAction = true
-        
-        // Başlangıç durumunu ayarla.
-        projectManagerButton.setTitle("Yönetici Seçin", for: .normal)
-        selectedManager = nil
+        projectManagerButton.setTitle(availableManagers.first?.name ?? "Yönetici Seçin", for: .normal)
+        selectedProjectManager = availableManagers.first
+        projectManagerButton.isEnabled = true
     }
+    
+    
+    
+    
+    func fetchCompaniesAndSetupMenu() async {
+        do {
+            let companies = try await APIService.shared.fetchAllCompanies()
+            self.avaliableCompanies = companies
+            DispatchQueue.main.async {
+                self.setupCompanyMenu()
+            }
+        } catch {
+            print("Şirket listesi çekilemedi: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.companyButton.setTitle("Şirket Yok", for: .normal)
+            }
+        }
+    }
+    
+    func setupCompanyMenu() {
+        let menuClosure = { [weak self] (action: UIAction) in
+            guard let self = self else { return }
+            
+            if let company = self.avaliableCompanies.first(where: { $0.companyName == action.title }) {
+                self.selectedCompany = company
+                self.companyButton.setTitle(company.companyName, for: .normal)
+                
+                // DEĞİŞİKLİK: Artık yeni bir API isteği yapmıyoruz.
+                // Sadece kategori menüsünü güncelliyoruz.
+                self.setUpCategoryMenu(for: company)
+            }
+        }
         
+        // ... (fonksiyonun geri kalanı aynı kalır)
+        let menuItems = avaliableCompanies.map { company in
+            UIAction(title: company.companyName, handler: menuClosure)
+        }
+        companyButton.menu = UIMenu(children: menuItems)
+        companyButton.showsMenuAsPrimaryAction = true
+        companyButton.setTitle("Şirket Seçin", for: .normal)
+        selectedCompany = nil
+    }
+    
+    // Bu yeni fonksiyon, zincirleme reaksiyonu yönetir.
+    func updateDependentMenus(for company: CompanyModel) {
+        // Kategori menüsünü anında kur (senkron işlem)
+        setUpCategoryMenu(for: company)
+        
+        // Yönetici menüsü için API isteği yap
+        projectManagerButton.setTitle("Yöneticiler Yükleniyor...", for: .normal)
+        projectManagerButton.isEnabled = false
+        
+        Task {
+            await fetchManagersandSetupMenu()
+        }
+    }
+    
+    
     // Kullanıcı TextView'in içine tıkladığında...
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == .placeholderText{
@@ -242,6 +340,36 @@ class CreateProjectTableViewController: UITableViewController, UITextViewDelegat
         }
     }
     
+    //StackView güncelleme fonksiyonu
+    func updateTeamMembersStackView() {
+        // 1. Önce, stackview'in içindeki tüm eski etiketleri temizle.
+        for subview in employeesStackView.arrangedSubviews {
+            employeesStackView.removeArrangedSubview(subview)
+            subview.removeFromSuperview()
+        }
+        
+        // 2. Eğer hiç çalışan seçilmemişse, bir placeholder göster ve bitir.
+        if selectedTeamMembers.isEmpty {
+            let placeholderLabel = UILabel()
+            placeholderLabel.text = "Çalışan seçmek için dokunun"
+            placeholderLabel.textColor = .placeholderText
+            employeesStackView.addArrangedSubview(placeholderLabel)
+            return // Fonksiyondan çık
+        }
+        
+        // 3. Eğer seçilmiş çalışanlar VARSA, her biri için bir etiket oluştur.
+        for employee in selectedTeamMembers {
+            let nameLabel = UILabel()
+            nameLabel.text = employee.name
+            nameLabel.font = .systemFont(ofSize: 14)
+            nameLabel.textColor = .systemBlue
+            
+            // StackView'e bu yeni etiketi ekle.
+            employeesStackView.addArrangedSubview(nameLabel)
+        }
+    }
+    
+    
+    
     
 }
-

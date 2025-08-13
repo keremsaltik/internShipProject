@@ -16,6 +16,8 @@ struct CreateProjectRequest: Codable{
     let category: String
     let priority: String
     let projectManager: String
+    var teamMembers: [String]?
+    let company: String
 }
 
 // Backend üzerinden gelecek yanıt için.
