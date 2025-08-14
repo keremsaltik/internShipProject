@@ -68,7 +68,11 @@ class ProfileViewController: UIViewController {
                     self?.companyLabel.text = profileResponse.company
                 
                 case .failure(let error):
-                    AlertHelper.showAlert(viewController: self!, title: "Hata", message: "Profil bilgileri alınamadı.")
+                    AlertHelper.showAlert(viewController: self!, title: "Hata", message: "Profil bilgileri alınamadı.", completion: {
+                        // Bu kod bloğu, kullanıcı "Tamam" butonuna bastıktan
+                        // sonra çalışacaktır.
+                        print("Alert'in Tamam butonuna basıldı. Giriş ekranına yönlendiriliyor...")
+                        self?.logOutAndGoToLogin()})
                     // Başarısız: Hata mesajı göster
                     print("Profil bilgileri alınamadı: \(error.localizedDescription)")
                     // --- BU SATIRLARI EKLE ---
@@ -77,10 +81,14 @@ class ProfileViewController: UIViewController {
                         print("Hatanın açıklaması: \(error.localizedDescription)")
                         }
                         print("-----------------------")
-                    
                 }
             
             }
         }
+    
+    func logOutAndGoToLogin(){
+        KeyChainManager.shared.deleteToken()
+                switchToMainApp()
+    }
     
 }

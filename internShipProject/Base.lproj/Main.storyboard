@@ -169,7 +169,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="6qL-fr-hQk">
-                                <rect key="frame" x="20" y="208" width="362" height="48.666666666666686"/>
+                                <rect key="frame" x="20" y="268.33333333333331" width="362" height="48.666666666666686"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="İsim" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SD9-kQ-NXx">
                                         <rect key="frame" x="0.0" y="0.0" width="362" height="20.333333333333332"/>
@@ -178,7 +178,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="A6H-7k-jau">
-                                        <rect key="frame" x="0.0" y="28.333333333333343" width="362" height="20.333333333333329"/>
+                                        <rect key="frame" x="0.0" y="28.333333333333371" width="362" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -186,7 +186,7 @@
                                 </subviews>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="KFi-j9-1tW">
-                                <rect key="frame" x="20" y="288" width="362" height="48.666666666666686"/>
+                                <rect key="frame" x="20" y="348.33333333333331" width="362" height="48.666666666666686"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mail Adresi" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oeq-fa-zrz">
                                         <rect key="frame" x="0.0" y="0.0" width="362" height="20.333333333333332"/>
@@ -195,15 +195,15 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sbr-he-SCh">
-                                        <rect key="frame" x="0.0" y="28.333333333333314" width="362" height="20.333333333333329"/>
+                                        <rect key="frame" x="0.0" y="28.333333333333371" width="362" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
                             </stackView>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="s4K-JG-cPd">
-                                <rect key="frame" x="20" y="369" width="362" height="48.666666666666686"/>
+                            <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="s4K-JG-cPd">
+                                <rect key="frame" x="20" y="429.33333333333331" width="362" height="48.666666666666686"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Çalıştığı Şirket" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bnZ-V1-UAc">
                                         <rect key="frame" x="0.0" y="0.0" width="362" height="20.333333333333332"/>
@@ -212,7 +212,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pUx-Uz-vQm">
-                                        <rect key="frame" x="0.0" y="28.333333333333314" width="362" height="20.333333333333329"/>
+                                        <rect key="frame" x="0.0" y="28.333333333333371" width="362" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -324,7 +324,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="hMl-7Q-nak">
-                                <rect key="frame" x="20" y="158" width="362" height="633"/>
+                                <rect key="frame" x="20" y="166.33333333333331" width="362" height="624.66666666666674"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="DetailCell" textLabel="iku-vV-mdt" detailTextLabel="bdY-v2-w9J" style="IBUITableViewCellStyleSubtitle" id="yg6-jf-KZN">
@@ -435,8 +435,8 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="JFN-1t-2Ii" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Profil" image="person.crop.circle.fill" catalog="system" id="gsB-mP-8vf"/>
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="hNg-3P-yO0">
-                        <rect key="frame" x="0.0" y="62" width="402" height="44"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="hNg-3P-yO0">
+                        <rect key="frame" x="0.0" y="62" width="402" height="104.33333333333334"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -454,8 +454,8 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="4og-X0-ZAF" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Ana Sayfa" image="house.fill" catalog="system" id="eBz-HB-Eyg"/>
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Xtf-MR-vfK">
-                        <rect key="frame" x="0.0" y="62" width="402" height="44"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="Xtf-MR-vfK">
+                        <rect key="frame" x="0.0" y="62" width="402" height="104.33333333333334"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -474,7 +474,7 @@
                     <tabBarItem key="tabBarItem" title="Projeler" image="folder.fill" catalog="system" id="1h2-Yt-eju"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="VHA-6g-iQf">
-                        <rect key="frame" x="0.0" y="62" width="402" height="96"/>
+                        <rect key="frame" x="0.0" y="62" width="402" height="104.33333333333334"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

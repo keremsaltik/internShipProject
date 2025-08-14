@@ -106,7 +106,7 @@ class ProjectDetailViewController: UIViewController, UITableViewDataSource, UITa
         detailItems.append(ProjectDetailModel(label: "Proje Önem Derecesi", value: project.priority ?? "", iconName:"exclamationmark.circle.fill"))
         detailItems.append(ProjectDetailModel(label: "Proje Yetkilisi", value: project.projectManager ?? "", iconName: "person"))
         if !project.teamMembers.isEmpty {
-            let memberNames = project.teamMembers.map {$0.name}.joined(separator: ".")
+            let memberNames = project.teamMembers.map {$0.name}.joined(separator: ", ")
             detailItems.append(ProjectDetailModel(label: "Proje Üyeleri", value: memberNames, iconName: "person.3.fill"))
         }
         detailItems.append(ProjectDetailModel(label: "Proje Sahibi Şirket", value: project.company ?? "", iconName: "building.fill"))

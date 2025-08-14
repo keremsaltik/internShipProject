@@ -196,7 +196,11 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
                         } else {
                             errorMessage = "Lütfen internet bağlantınızı kontrol edin."
                         }
-                AlertHelper.showAlert(viewController: self, title: "Hata", message: errorMessage)
+                AlertHelper.showAlert(viewController: self, title: "Hata", message: errorMessage, completion: {
+                    // Bu kod bloğu, kullanıcı "Tamam" butonuna bastıktan
+                    // sonra çalışacaktır.
+                    print("Alert'in Tamam butonuna basıldı. Giriş ekranına yönlendiriliyor...")
+                    self.logOutAndGoToLogin()})
                 self.refreshController.endRefreshing()
             }
             
@@ -247,5 +251,31 @@ class ProjectTableViewController: UITableViewController, UISearchBarDelegate {
         // 2. TableView'e kendini yeni filtrelenmiş veriye göre güncellemesini söyle.
         tableView.reloadData()
         
+    }
+    
+    func logOutAndGoToLogin(){
+        KeyChainManager.shared.deleteToken()
+                switchToMainApp()
+    }
+    
+    func switchToMainApp() {
+        DispatchQueue.main.async {
+            guard let mainNavigationController = self.storyboard?.instantiateViewController(withIdentifier: "toLoginPageNavigationController") else {
+                print("Hata: toLoginPageNavigationController storyboard'da bulunamadı.")
+                return
+            }
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let sceneDelegate = windowScene.delegate as? SceneDelegate,
+               let window = sceneDelegate.window {
+                
+                window.rootViewController = mainNavigationController
+                UIView.transition(with: window,
+                                  duration: 0.3,
+                                  options: .transitionCrossDissolve,
+                                  animations: nil,
+                                  completion: nil)
+            }
+        }
     }
 }
