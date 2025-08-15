@@ -112,14 +112,15 @@ class APIService {
         let (data, response) = try await URLSession.shared.data(for: request)
         
         // Yanıtın başarılı olup olmadığı ile ilgili kontrol
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else{
-            throw APIError.serverError(message: "Geçersiz sunucu yanıtı") //Sunucu hatası
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.serverError(message: "Geçersiz sunucu yanıtı.")
         }
         
         // Gelen JSON verisini RegisterResponse modeline dönüştür ve geri döndür.
         let registerResponse = try? JSONDecoder().decode(RegisterResponse.self, from: data)
+        
         switch httpResponse.statusCode {
-        case 201: // Created
+        case 201: // Created - Başarılı kayıt durumu
             if let response = registerResponse {
                 return response
             } else {
