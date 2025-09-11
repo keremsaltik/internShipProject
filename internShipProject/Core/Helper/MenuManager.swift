@@ -10,7 +10,7 @@ import UIKit
 
 struct MenuManager{
     // --- Proje Yöneticisi Menüsünü Ayarlama ---
-    func fetchManagersandSetupMenu(button: UIButton, onSelect: @escaping (UserViewModel?) -> Void) async{
+    func fetchManagersandSetupMenu(button: UIButton, onSelect: @escaping (UserInfoModel?) -> Void) async{
         do{
             let users = try await APIService.shared.fetchAllUsers()
             DispatchQueue.main.async{

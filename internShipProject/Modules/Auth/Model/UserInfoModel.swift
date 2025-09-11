@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UserViewModel: Codable, Hashable{
+struct UserInfoModel: Codable, Hashable{
     let name: String
     let mail: String
 }

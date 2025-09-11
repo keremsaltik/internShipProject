@@ -16,7 +16,7 @@ struct CreateProjectRequest: Codable{
     let category: String
     let priority: String
     let projectManager: String
-    var teamMembers: [String]?
+    var employees: [String]?
     let company: String
 }
 

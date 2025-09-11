@@ -10,15 +10,23 @@
 import Foundation
 
 enum APIError: Error,LocalizedError{
+    
+    // Network / API layer
     case unauthorized(message: String) // 401: Token geçersiz veya şifre yanlış
     case serverError(message: String) // 409: E-posta zaten kullanımda
     case decodingError // 5xx: Sunucu tarafı hatası
     case urlError // Gelen JSON veri formatı bozuk
     case conflict(message: String) // Programatik olarak URL oluşturulamadı
     
+    // Validation / Business logic
+    case emptyFields
+    case invalidEmail
+    
     // Bu kısım, her bir hata tipi için kullanıcıya gösterilecek standart bir metin sağlar.
     var errorDescription: String?{
         switch self{
+            
+        // Network
         case .unauthorized(let message):
             return message
         case .serverError(let message):
@@ -29,6 +37,12 @@ enum APIError: Error,LocalizedError{
             return "Sunucudan gelen yanıt anlaşılamadı. Lütfen daha sonra tekrar deneyin."
         case .urlError:
             return "Uygulama, geçersiz bir sunucu adresine bağlanmaya çalıştı."
+        
+        // Validation
+        case .emptyFields:
+            return "Lütfen tüm alanları doldurun."
+        case .invalidEmail:
+            return "Lütfen geçerli bir e-posta adresi girin."
         }
     }
 }
@@ -328,7 +342,7 @@ class APIService {
         }
     }
     
-    func fetchAllUsers() async throws -> [UserViewModel] {
+    func fetchAllUsers() async throws -> [UserInfoModel] {
         
         let urlString = "\(NetworkInfo.Hosts.localHost)/users/list"
         
@@ -350,7 +364,7 @@ class APIService {
             throw URLError(.badServerResponse)
         }
         
-        let users = try JSONDecoder().decode([UserViewModel].self, from: data)
+        let users = try JSONDecoder().decode([UserInfoModel].self, from: data)
         return users
     }
     
